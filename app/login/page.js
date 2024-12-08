@@ -15,6 +15,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
   e.preventDefault();
   setError("");
+  setIsSubmitting(true);
 
   if (!email || !password) {
     setError("All fields are required.");
@@ -27,26 +28,12 @@ export default function LoginPage() {
   }
 
   try {
-    // const response = await fetch("https://backend1.oilnwine.tech/api/auth/login", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ email, password }),
-    // });
-
-    // if (response.ok) {
-    //     const data = await response.json();
-    //     localStorage.setItem("token", data.token); // Store JWT locally
-    //     alert("Login successful!");
-    //     // Redirect or perform any post-login action
-    // } else {
-    //     alert("Invalid credentials");
-    // }
-    const handleLogin = async () => {
-      await login(email, password);
-      router.push("/dashboard"); // Redirect to a protected route
-    };
+    await login(email, password); // Perform the login
+    router.push("/dashboard"); // Redirect to a protected route after successful login
   } catch (err) {
     setError("Failed to connect to the server.");
+  } finally {
+    setIsSubmitting(false); // Reset the submitting state after the process
   }
 };
 
