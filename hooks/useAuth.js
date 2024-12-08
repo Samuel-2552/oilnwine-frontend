@@ -4,8 +4,13 @@ import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const useAuth = () => {
-  const [accessToken, setAccessToken] = useState(null);
-  const [refreshToken, setRefreshToken] = useState(null);
+  const [accessToken, setAccessToken] = useState(() => {
+    // Try to get the accessToken from localStorage on initial render
+    return localStorage.getItem("access_token") || null;
+  });
+  const [refreshToken, setRefreshToken] = useState(() => {
+    return localStorage.getItem("refresh_token") || null;
+  });
 
   // Refresh tokens
   const refreshTokens = async () => {
@@ -43,6 +48,14 @@ export const useAuth = () => {
       return () => clearInterval(interval);
     }
   }, []);
+
+  // useEffect(() => {
+  //   // Set up interval for refreshing tokens if refreshToken exists
+  //   if (refreshToken) {
+  //     const interval = setInterval(refreshTokens, 3 * 60 * 1000); // Refresh every 3 minutes
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [refreshToken]);
 
   const login = async (email, password) => {
     try {

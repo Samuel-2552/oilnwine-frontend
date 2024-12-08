@@ -7,14 +7,17 @@ import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const { accessToken, logout } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!accessToken) {
       router.push("/login");
+    }else {
+      setLoading(false); // Stop the loading state once accessToken is set
     }
-  }, [accessToken]);
+  }, [accessToken, router]);
 
-  if (!accessToken) return <div>Redirecting...</div>;
+  if (loading) return <div>Redirecting...</div>;
 
   return (
     <div>
