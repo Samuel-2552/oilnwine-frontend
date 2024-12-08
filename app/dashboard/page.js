@@ -1,6 +1,8 @@
+"use client";
+
 import { useAuth } from "../../hooks/useAuth";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const { accessToken, logout } = useAuth();
@@ -10,7 +12,7 @@ export default function Dashboard() {
     if (!accessToken) {
       router.push("/login");
     }
-  }, [accessToken, router]);
+  }, [accessToken, useState]);
 
   if (!accessToken) return <div>Redirecting...</div>;
 
