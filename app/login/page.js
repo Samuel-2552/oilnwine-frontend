@@ -13,29 +13,32 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setIsSubmitting(true);
-
-  if (!email || !password) {
-    setError("All fields are required.");
-    return;
-  }
-
-  if (!/\S+@\S+\.\S+/.test(email)) {
-    setError("Please enter a valid email address.");
-    return;
-  }
-
-  try {
-    await login(email, password); // Perform the login
-    router.push("/dashboard"); // Redirect to a protected route after successful login
-  } catch (err) {
-    setError("Failed to connect to the server.");
-  } finally {
-    setIsSubmitting(false); // Reset the submitting state after the process
-  }
-};
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+  
+    if (!email || !password) {
+      setError("All fields are required.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Please enter a valid email address.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    try {
+      await login(email, password); // Perform the login
+      router.push("/dashboard"); // Redirect to a protected route after successful login
+    } catch (err) {
+      setError(err.message); // Set the error message (either invalid credentials or server not reachable)
+    } finally {
+      setIsSubmitting(false); // Reset the submitting state after the process
+    }
+  };
+  
 
 
   return (

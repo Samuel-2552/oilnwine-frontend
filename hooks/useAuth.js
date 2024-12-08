@@ -18,6 +18,7 @@ export const useAuth = () => {
       setAccessToken(response.data.access_token);
     } catch (error) {
       console.error("Token refresh failed:", error);
+      logout();  // Logout if refresh fails
     }
   };
 
@@ -35,6 +36,18 @@ export const useAuth = () => {
       setRefreshToken(response.data.refresh_token);
     } catch (error) {
       console.error("Login failed:", error);
+  
+      // Check if the error is a network error or server is unreachable
+      if (error.response) {
+        // Handle errors from the server (e.g., invalid credentials)
+        throw new Error("Invalid credentials or server error.");
+      } else if (error.request) {
+        // Handle case where the request was made but no response was received
+        throw new Error("Server not reachable. Please try again later.");
+      } else {
+        // Other errors
+        throw new Error("An unexpected error occurred. Please try again.");
+      }
     }
   };
 

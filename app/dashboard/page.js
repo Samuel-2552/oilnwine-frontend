@@ -12,7 +12,7 @@ export default function Dashboard() {
     if (!accessToken) {
       router.push("/login");
     }
-  }, [accessToken, useState]);
+  }, [accessToken]);
 
   if (!accessToken) return <div>Redirecting...</div>;
 
