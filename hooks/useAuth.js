@@ -10,15 +10,19 @@ export const useAuth = () => {
   // Refresh tokens
   const refreshTokens = async () => {
     try {
-      const response = await axios.post(`${BASE_URL}/api/auth/refresh`, {}, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      });
+      const response = await axios.post(
+        `${BASE_URL}/api/auth/refresh`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        }
+      );
       setAccessToken(response.data.access_token);
     } catch (error) {
       console.error("Token refresh failed:", error);
-      logout();  // Logout if refresh fails
+      logout(); // Logout if refresh fails
     }
   };
 
@@ -31,24 +35,34 @@ export const useAuth = () => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
+      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
+        email,
+        password,
+      });
       setAccessToken(response.data.access_token);
       setRefreshToken(response.data.refresh_token);
+      const { access_token, refresh_token } = response.data;
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("refresh_token", refresh_token);
     } catch (error) {
-      console.error("Login failed:", error);
-  
-      // Check if the error is a network error or server is unreachable
       if (error.response) {
-        // Handle errors from the server (e.g., invalid credentials)
-        throw new Error("Invalid credentials or server error.");
-      } else if (error.request) {
-        // Handle case where the request was made but no response was received
-        throw new Error("Server not reachable. Please try again later.");
+        if (error.response.status === 401) {
+          throw new Error("Invalid email or password. Please try again.");
+        } else if (error.response.status === 400) {
+          throw new Error(error.response.data.message); // Error message from the backend
+        } else {
+          throw new Error(
+            "An error occurred while logging in. Please try again later."
+          );
+        }
       } else {
-        // Other errors
-        throw new Error("An unexpected error occurred. Please try again.");
+        throw new Error(
+          "Network error. Please check your connection and try again."
+        );
       }
     }
+
+    return { login };
   };
 
   const logout = () => {
