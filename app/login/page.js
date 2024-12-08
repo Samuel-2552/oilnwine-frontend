@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useRouter } from "next/router";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -23,20 +27,24 @@ export default function LoginPage() {
   }
 
   try {
-    const response = await fetch("https://backend1.oilnwine.tech/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    // const response = await fetch("https://backend1.oilnwine.tech/api/auth/login", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ email, password }),
+    // });
 
-    if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("token", data.token); // Store JWT locally
-        alert("Login successful!");
-        // Redirect or perform any post-login action
-    } else {
-        alert("Invalid credentials");
-    }
+    // if (response.ok) {
+    //     const data = await response.json();
+    //     localStorage.setItem("token", data.token); // Store JWT locally
+    //     alert("Login successful!");
+    //     // Redirect or perform any post-login action
+    // } else {
+    //     alert("Invalid credentials");
+    // }
+    const handleLogin = async () => {
+      await login(email, password);
+      router.push("/dashboard"); // Redirect to a protected route
+    };
   } catch (err) {
     setError("Failed to connect to the server.");
   }
