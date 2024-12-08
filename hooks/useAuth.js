@@ -27,11 +27,22 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
-    if (refreshToken) {
+    // Check if accessToken and refreshToken are stored in localStorage on initial load
+    const storedAccessToken = localStorage.getItem("access_token");
+    const storedRefreshToken = localStorage.getItem("refresh_token");
+    if (storedAccessToken) {
+      setAccessToken(storedAccessToken);
+    }
+    if (storedRefreshToken) {
+      setRefreshToken(storedRefreshToken);
+    }
+
+    // Start the token refresh interval if refreshToken exists
+    if (storedRefreshToken) {
       const interval = setInterval(refreshTokens, 3 * 60 * 1000); // Refresh every 3 minutes
       return () => clearInterval(interval);
     }
-  }, [refreshToken]);
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -39,9 +50,10 @@ export const useAuth = () => {
         email,
         password,
       });
-      setAccessToken(response.data.access_token);
-      setRefreshToken(response.data.refresh_token);
+      
       const { access_token, refresh_token } = response.data;
+      setAccessToken(access_token);
+      setRefreshToken(refresh_token);
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("refresh_token", refresh_token);
     } catch (error) {
@@ -68,6 +80,8 @@ export const useAuth = () => {
   const logout = () => {
     setAccessToken(null);
     setRefreshToken(null);
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
   };
 
   return { accessToken, login, logout };
