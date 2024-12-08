@@ -4,13 +4,8 @@ import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const useAuth = () => {
-  const [accessToken, setAccessToken] = useState(() => {
-    // Try to get the accessToken from localStorage on initial render
-    return localStorage.getItem("access_token") || null;
-  });
-  const [refreshToken, setRefreshToken] = useState(() => {
-    return localStorage.getItem("refresh_token") || null;
-  });
+  const [accessToken, setAccessToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(null);
 
   // Refresh tokens
   const refreshTokens = async () => {
@@ -32,31 +27,28 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
-    // Check if accessToken and refreshToken are stored in localStorage on initial load
-    const storedAccessToken = localStorage.getItem("access_token");
-    const storedRefreshToken = localStorage.getItem("refresh_token");
-    if (storedAccessToken) {
-      setAccessToken(storedAccessToken);
-    }
-    if (storedRefreshToken) {
-      setRefreshToken(storedRefreshToken);
-    }
+    // Only access localStorage in the client-side environment
+    if (typeof window !== "undefined") {
+      const storedAccessToken = localStorage.getItem("access_token");
+      const storedRefreshToken = localStorage.getItem("refresh_token");
 
-    // Start the token refresh interval if refreshToken exists
-    if (storedRefreshToken) {
-      const interval = setInterval(refreshTokens, 3 * 60 * 1000); // Refresh every 3 minutes
-      return () => clearInterval(interval);
+      if (storedAccessToken) {
+        setAccessToken(storedAccessToken);
+      }
+      if (storedRefreshToken) {
+        setRefreshToken(storedRefreshToken);
+      }
     }
   }, []);
 
-  // useEffect(() => {
-  //   // Set up interval for refreshing tokens if refreshToken exists
-  //   if (refreshToken) {
-  //     const interval = setInterval(refreshTokens, 3 * 60 * 1000); // Refresh every 3 minutes
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [refreshToken]);
-
+  useEffect(() => {
+    // Set up interval for refreshing tokens if refreshToken exists
+    if (refreshToken) {
+      const interval = setInterval(refreshTokens, 3 * 60 * 1000); // Refresh every 3 minutes
+      return () => clearInterval(interval);
+    }
+  }, [refreshToken]);
+  
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${BASE_URL}/api/auth/login`, {
